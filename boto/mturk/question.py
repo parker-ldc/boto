@@ -295,8 +295,7 @@ class FreeTextAnswer(object):
         self.num_lines = num_lines
     
     def get_as_xml(self):
-        constraints = Constraints()
-        items = [constraints]
+        items = [self.constraints]
         if self.default:
             items.append(SimpleField('DefaultText', self.default))
         if self.num_lines:
