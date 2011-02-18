@@ -113,6 +113,14 @@ class MTurkConnection(AWSQueryConnection):
         """
         return self._set_notification(hit_type, 'REST', url, event_types)
         
+    def set_soap_notification(self, hit_type, url, event_types=None):
+        """
+        Performs a SetHITTypeNotification operation to set REST notification
+        for a specified HIT type
+        """
+        return self._set_notification(hit_type, 'SOAP', url, event_types)
+    
+
     def _set_notification(self, hit_type, transport, destination, event_types=None):
         """
         Common SetHITTypeNotification operation to set notification for a
@@ -147,6 +155,64 @@ class MTurkConnection(AWSQueryConnection):
         
         # Execute operation
         return self._process_request('SetHITTypeNotification', params)
+
+
+
+    def test_email_notification(self, hit_type, email, event_type):
+        """
+        Performs a SendTestEventNotification operation to set email
+        notification for a specified HIT type
+        """
+        return self._test_notification(hit_type, 'Email', email, event_type)
+    
+    def test_rest_notification(self, hit_type, url, event_type):
+        """
+        Performs a SendTestEventNotification operation to set REST notification
+        for a specified HIT type
+        """
+        return self._test_notification(hit_type, 'REST', url, event_type)
+        
+    def test_soap_notification(self, hit_type, url, event_type):
+        """
+        Performs a SendTestEventNotification operation to set SOAP notification
+        for a specified HIT type
+        """
+        return self._test_notification(hit_type, 'SOAP', url, event_type)
+    
+
+    def _test_notification(self, hit_type, transport, destination, event_type):
+        """
+        Common SendTestEventNotification operation to set notification for a
+        specified HIT type
+        """
+        assert type(hit_type) is str, "hit_type argument should be a string."
+        
+        params = {'HITTypeId': hit_type}
+        
+        # from the Developer Guide:
+        # The 'Active' parameter is optional. If omitted, the active status of
+        # the HIT type's notification specification is unchanged. All HIT types
+        # begin with their notification specifications in the "inactive" status.
+        notification_params = {'Destination': destination,
+                               'Transport': transport,
+                               'Version': boto.mturk.notification.NotificationMessage.NOTIFICATION_VERSION,
+                               'Active': True,
+                               'EventType' : event_type
+                               }
+        # Set up dict of 'Notification.1.Transport' etc. values
+        notification_rest_params = {}
+        num = 1
+        for key in notification_params:
+            notification_rest_params['Notification.%d.%s' % (num, key)] = notification_params[key]
+        # Update main params dict
+        params.update(notification_rest_params)
+        params["TestEventType"] = event_type
+        # Execute operation
+        return self._process_request('SendTestEventNotification', params)
+
+
+
+
     
     def create_hit(self, hit_type=None, question=None,
                    lifetime=datetime.timedelta(days=7),
