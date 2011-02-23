@@ -99,29 +99,29 @@ class MTurkConnection(AWSQueryConnection):
             return res[0].HITTypeId
 
 
-    def set_email_notification(self, hit_type, email, event_types=None):
+    def set_email_notification(self, hit_type, email, event_types=None, active=True):
         """
         Performs a SetHITTypeNotification operation to set email
         notification for a specified HIT type
         """
-        return self._set_notification(hit_type, 'Email', email, event_types)
-    
-    def set_rest_notification(self, hit_type, url, event_types=None):
-        """
-        Performs a SetHITTypeNotification operation to set REST notification
-        for a specified HIT type
-        """
-        return self._set_notification(hit_type, 'REST', url, event_types)
-        
-    def set_soap_notification(self, hit_type, url, event_types=None):
-        """
-        Performs a SetHITTypeNotification operation to set REST notification
-        for a specified HIT type
-        """
-        return self._set_notification(hit_type, 'SOAP', url, event_types)
-    
+        return self._set_notification(hit_type, 'Email', email, event_types, active)
 
-    def _set_notification(self, hit_type, transport, destination, event_types=None):
+    def set_rest_notification(self, hit_type, url, event_types=None, active=True):
+        """
+        Performs a SetHITTypeNotification operation to set REST notification
+        for a specified HIT type
+        """
+        return self._set_notification(hit_type, 'REST', url, event_types, active)
+
+    def set_soap_notification(self, hit_type, url, event_types=None, active=True):
+        """
+        Performs a SetHITTypeNotification operation to set SOAP notification
+        for a specified HIT type
+        """
+        return self._set_notification(hit_type, 'SOAP', url, event_types, active)
+
+
+    def _set_notification(self, hit_type, transport, destination, event_types=None, active=True):
         """
         Common SetHITTypeNotification operation to set notification for a
         specified HIT type
@@ -137,7 +137,7 @@ class MTurkConnection(AWSQueryConnection):
         notification_params = {'Destination': destination,
                                'Transport': transport,
                                'Version': boto.mturk.notification.NotificationMessage.NOTIFICATION_VERSION,
-                               'Active': True,
+                               'Active': active,
                                }
 
         # add specific event types if required
